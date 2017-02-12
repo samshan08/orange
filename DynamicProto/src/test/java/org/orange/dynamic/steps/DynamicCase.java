@@ -1,12 +1,15 @@
 package org.orange.dynamic.steps;
 
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.InvalidProtocolBufferException;
 import cucumber.api.java.zh_cn.假如;
 import cucumber.api.java.zh_cn.当;
 import cucumber.api.java.zh_cn.那么;
+import io.grpc.MethodDescriptor;
 import org.junit.Assert;
 import org.orange.dynamic.DynamicDescriptorPool;
 import org.orange.dynamic.container.DynamicMessage;
+import org.orange.grpc.MethodBuilder;
 import org.orange.grpc.marshaller.ProtoMessageMarshaller;
 import org.orange.vsc.pvr.api.generate.PvrSerivceProto;
 
@@ -78,11 +81,32 @@ public class DynamicCase
     {
         byte[] dynamicBytes = dynamicStream.get(typeName);
         byte[] typicalBytes = typicalStream.get(typeName);
-        ProtoMessageMarshaller protoMessageMarshaller = new ProtoMessageMarshaller(DynamicDescriptorPool.getInstance().findTypeDescriptor(typeName));
-        com.google.protobuf.DynamicMessage dynamicProto = protoMessageMarshaller.parse(new ByteArrayInputStream(dynamicBytes));
-        System.out.println(dynamicProto);
-        com.google.protobuf.DynamicMessage typicalProto = protoMessageMarshaller.parse(new ByteArrayInputStream(typicalBytes));
-        System.out.println(typicalProto);
+        Assert.assertTrue(Arrays.equals(dynamicBytes, typicalBytes));
+    }
+
+    @当("通过DynamicMessage反序列化机制将二进制反序列化成为(.+)对象，并修改值")
+    public void deserializeProtoToDynamic(String typeName)
+    {
+        byte[] typicalBytes = typicalStream.get(typeName);
+        MethodDescriptor<com.google.protobuf.DynamicMessage, com.google.protobuf.DynamicMessage> methodDesc =
+                MethodBuilder.buildProtoMessageMethod(DynamicDescriptorPool.generateFullName("dsf.vsc.pvr.api.pvrSerivce", "queryRecordPlans"));
+        com.google.protobuf.DynamicMessage protoMsg = methodDesc.getResponseMarshaller().parse(new ByteArrayInputStream(typicalBytes));
+        DynamicMessage dynamicMessage = DynamicDescriptorPool.getInstance().createDynamicMessageContainer(typeName);
+        dynamicMessage.fromProtoMessage(protoMsg);
+        ((DynamicMessage)((DynamicMessage)dynamicMessage.get("arg0")).get("result")).put("retMsg", "you are a good boy");
+        dynamicStream.put(typeName, dynamicMessage.toProtoMessage().toByteArray());
+    }
+
+    @那么("比较修改后的(.+)，两者二进制相同")
+    public void modifyAndCompareBinary(String typeName) throws InvalidProtocolBufferException {
+        byte[] dynamicBytes = dynamicStream.get(typeName);
+        byte[] typicalBytes = typicalStream.get(typeName);
+        PvrSerivceProto.QueryRecordPlansResp.Builder builder = PvrSerivceProto.QueryRecordPlansResp.newBuilder();
+        builder.mergeFrom(typicalBytes);
+        PvrSerivceProto.Result.Builder resultBuilder = builder.getArg0().getResult().toBuilder();
+        resultBuilder.setRetMsg("you are a good boy");
+        builder.setArg0(builder.getArg0().toBuilder().setResult(resultBuilder.build()));
+        typicalBytes = builder.build().toByteArray();
         Assert.assertTrue(Arrays.equals(dynamicBytes, typicalBytes));
     }
 
