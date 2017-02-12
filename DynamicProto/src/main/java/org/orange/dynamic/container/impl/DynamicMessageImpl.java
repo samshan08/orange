@@ -81,7 +81,7 @@ public class DynamicMessageImpl implements DynamicMessage
 
         //Create a new container for next Set
         SubMessageValue subMessageValue = new SubMessageValue(fieldDescriptor);
-        subMessages.put(keyStr, new SubMessageValue(fieldDescriptor));
+        subMessages.put(keyStr, subMessageValue);
         return subMessageValue.getContainerValues();
     }
 

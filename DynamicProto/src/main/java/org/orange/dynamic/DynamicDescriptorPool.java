@@ -122,7 +122,7 @@ public class DynamicDescriptorPool {
         if (typeFullName.indexOf('.') != -1)
         {
             pkgName = typeFullName.substring(0,typeFullName.lastIndexOf('.'));
-            messageTypeName = typeFullName.substring(typeFullName.indexOf('.') + 1);
+            messageTypeName = typeFullName.substring(typeFullName.lastIndexOf('.') + 1);
         }
         for (Descriptors.FileDescriptor fileDescriptor : fileDescriptors.values())
         {
