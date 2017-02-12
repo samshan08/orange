@@ -98,7 +98,13 @@ public class DynamicDescriptorPool {
         return methodFullNames;
     }
 
-    private static String generateFullName(String fullServiceName, String methodName)
+    /**
+     * 生成类型全名
+     * @param fullServiceName
+     * @param methodName
+     * @return 类型全名
+     */
+    public static String generateFullName(String fullServiceName, String methodName)
     {
         return Preconditions.checkNotNull(fullServiceName, "fullServiceName") + "/" + Preconditions.checkNotNull(methodName, "methodName");
     }

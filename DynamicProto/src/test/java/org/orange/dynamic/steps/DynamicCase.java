@@ -10,7 +10,6 @@ import org.junit.Assert;
 import org.orange.dynamic.DynamicDescriptorPool;
 import org.orange.dynamic.container.DynamicMessage;
 import org.orange.grpc.MethodBuilder;
-import org.orange.grpc.marshaller.ProtoMessageMarshaller;
 import org.orange.vsc.pvr.api.generate.PvrSerivceProto;
 
 import java.io.ByteArrayInputStream;
@@ -110,5 +109,10 @@ public class DynamicCase
         Assert.assertTrue(Arrays.equals(dynamicBytes, typicalBytes));
     }
 
+    @那么("卸载desc文件(.+)")
+    public void unloadDescriptor(String descName) throws IOException, Descriptors.DescriptorValidationException {
+        String path = "desc/" + descName;
+        DynamicDescriptorPool.getInstance().unload(path);
+    }
 
 }
