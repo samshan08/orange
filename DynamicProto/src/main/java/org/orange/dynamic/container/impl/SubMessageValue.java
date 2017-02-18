@@ -1,6 +1,7 @@
 package org.orange.dynamic.container.impl;
 
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.Message;
 import org.orange.dynamic.container.DynamicMessage;
 import org.orange.dynamic.exceptions.RepeatedMismatchException;
 
@@ -11,19 +12,24 @@ import java.util.List;
 /**
  * Created by Sam on 2017/2/7.
  */
-public class SubMessageValue
+public abstract class SubMessageValue
 {
 
-    private List<DynamicMessage> messageContainers = new ArrayList<DynamicMessage>();
+    private List<DynamicMessage> messageContainers;
 
-    private final Descriptors.FieldDescriptor fieldDescriptor;
+    protected final Descriptors.FieldDescriptor fieldDescriptor;
 
     public SubMessageValue(Descriptors.FieldDescriptor fieldDescriptor)
     {
         this.fieldDescriptor = fieldDescriptor;
         if (!fieldDescriptor.isRepeated())
         {
-            messageContainers.add(new DynamicMessageImpl(fieldDescriptor.getMessageType()));
+            messageContainers = new ArrayList<DynamicMessage>(1);
+            messageContainers.add(buildDynamicMessage());
+        }
+        else
+        {
+            messageContainers = new ArrayList<DynamicMessage>();
         }
     }
 
@@ -35,15 +41,15 @@ public class SubMessageValue
         }
         if (!fieldDescriptor.isRepeated())
         {
-            messageContainers.get(0).fromProtoMessage((com.google.protobuf.DynamicMessage)value);
+            messageContainers.get(0).fromProtoMessage((Message)value);
         }
         else
         {
             List<?> protoMessages = (List<?>)value;
             for (Object protoMessage : protoMessages)
             {
-                DynamicMessage msg = new DynamicMessageImpl(fieldDescriptor.getMessageType());
-                messageContainers.add(msg.fromProtoMessage((com.google.protobuf.DynamicMessage)protoMessage));
+                DynamicMessage msg = buildDynamicMessage();
+                messageContainers.add(msg.fromProtoMessage((Message)protoMessage));
             }
         }
         return this;
@@ -60,11 +66,20 @@ public class SubMessageValue
 
     private void buildContainer(Object item)
     {
-        DynamicMessageImpl container = new DynamicMessageImpl(fieldDescriptor.getMessageType());
-        messageContainers.add(container.fill(item));
+        messageTypeCheck(item);
+        if (item instanceof DynamicMessage)
+        {
+            messageContainers.add((DynamicMessage)item);
+        }
+        else
+        {
+            //This is message
+            DynamicMessage container = buildDynamicMessage();
+            messageContainers.add(container.fromProtoMessage((Message)item));
+        }
     }
 
-    public SubMessageValue fill(Object value)
+    protected SubMessageValue fill(Object value)
     {
         if (null == value)
         {
@@ -93,7 +108,7 @@ public class SubMessageValue
         return this;
     }
 
-    public void buildProtoMessage(com.google.protobuf.DynamicMessage.Builder dynamicBuilder)
+    public void buildProtoMessage(Message.Builder dynamicBuilder)
     {
         if (fieldDescriptor.isRepeated())
         {
@@ -108,6 +123,7 @@ public class SubMessageValue
         }
     }
 
+    protected abstract DynamicMessage buildDynamicMessage();
 
-
+    protected abstract void messageTypeCheck(Object item);
 }

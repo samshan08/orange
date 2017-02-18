@@ -1,5 +1,7 @@
 package org.orange.dynamic.container;
 
+import com.google.protobuf.Message;
+
 import java.util.Map;
 
 /**
@@ -12,13 +14,13 @@ public interface DynamicMessage extends Map<String, Object>
      * @param protoMessage
      * @return this
      */
-    DynamicMessage fromProtoMessage(com.google.protobuf.DynamicMessage protoMessage);
+    DynamicMessage fromProtoMessage(Message protoMessage);
 
     /**
      * Convert this to Proto DynamicMessage
      * @return Proto DynamicMessage
      */
-    com.google.protobuf.DynamicMessage toProtoMessage();
+    Message toProtoMessage();
 
 
 }

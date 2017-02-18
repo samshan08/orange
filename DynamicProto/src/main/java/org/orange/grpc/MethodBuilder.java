@@ -19,13 +19,17 @@ public class MethodBuilder
      */
     public static MethodDescriptor<DynamicMessage, DynamicMessage> buildDynamicMessageMethod(String methodFullName)
     {
-        Descriptors.MethodDescriptor methodDescriptor = DynamicDescriptorPool.getInstance().findMethodDescriptor(methodFullName);
+        DynamicDescriptorPool poolInstance = DynamicDescriptorPool.getInstance();
+        Descriptors.MethodDescriptor methodDescriptor = poolInstance.findMethodDescriptor(methodFullName);
         if (null == methodDescriptor)
         {
             return null;
         }
+        Descriptors.Descriptor inputType = methodDescriptor.getInputType();
+        Descriptors.Descriptor outputType = methodDescriptor.getOutputType();
         return MethodDescriptor.create(MethodDescriptor.MethodType.UNARY, methodFullName,
-                new DynamicMessageMarshaller(methodDescriptor.getInputType()), new DynamicMessageMarshaller(methodDescriptor.getOutputType()));
+                new DynamicMessageMarshaller(inputType, poolInstance.findProtoClazz(inputType).getDefaultInstance()),
+                new DynamicMessageMarshaller(outputType, poolInstance.findProtoClazz(outputType).getDefaultInstance()));
     }
 
     /**

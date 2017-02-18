@@ -1,27 +1,30 @@
 package org.orange.dynamic.container.impl;
 
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.Message;
 import org.orange.dynamic.container.DynamicMessage;
+import org.orange.dynamic.container.proxy.MessageProxy;
+import org.orange.dynamic.container.proxy.MessageProxyProto;
 import org.orange.utils.ProtoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-
 /**
- * Created by Sam on 2017/2/7.
+ * Created by SAM on 2017/2/18.
  */
-public class DynamicMessageImpl extends AbstractDynamicMessage
+public class ProtoMessageImpl extends AbstractDynamicMessage
 {
-    private final static Logger logger = LoggerFactory.getLogger(DynamicMessageImpl.class);
+    private final static Logger logger = LoggerFactory.getLogger(ProtoMessageImpl.class);
 
-    public DynamicMessageImpl(Descriptors.Descriptor descriptor)
+    private MessageProxyProto messageClazz;
+
+    public ProtoMessageImpl(MessageProxy messageClazz)
     {
-        this.descriptor = descriptor;
-        builder = com.google.protobuf.DynamicMessage.newBuilder(descriptor);
+        this.messageClazz = (MessageProxyProto)messageClazz;
+        builder = messageClazz.newBuilder();
+        descriptor = builder.getDescriptorForType();
     }
 
+    @Override
     public Object get(Object key)
     {
         String keyStr = String.valueOf(key);
@@ -36,7 +39,7 @@ public class DynamicMessageImpl extends AbstractDynamicMessage
         {
             builder.clearField(fieldDescriptor);
             //we need to lazy build the DynamcMessage now
-            SubMessageValue smv = new SubMessageValueDynamic(fieldDescriptor);
+            SubMessageValue smv = new SubMessageProto(fieldDescriptor, messageClazz);
             subMessages.put(keyStr, smv.from(rvalue));
             return smv.getContainerValues();
         }
@@ -47,11 +50,12 @@ public class DynamicMessageImpl extends AbstractDynamicMessage
         }
 
         //Create a new container for next Set
-        SubMessageValue subMessageValue = new SubMessageValueDynamic(fieldDescriptor);
+        SubMessageValue subMessageValue = new SubMessageProto(fieldDescriptor, messageClazz);
         subMessages.put(keyStr, subMessageValue);
         return subMessageValue.getContainerValues();
     }
 
+    @Override
     public Object put(String key, Object value)
     {
         Descriptors.FieldDescriptor fieldDescriptor = preconditionCheck(key);
@@ -62,42 +66,42 @@ public class DynamicMessageImpl extends AbstractDynamicMessage
         else
         {
             //due with sub messageTypes
-            SubMessageValue subMessageValue = new SubMessageValueDynamic(fieldDescriptor);
+            SubMessageValue subMessageValue = new SubMessageProto(fieldDescriptor, messageClazz);
             subMessages.put(key, subMessageValue.fill(value));
         }
         return null;
     }
 
-    private static class SubMessageValueDynamic extends SubMessageValue
+    private static class SubMessageProto extends SubMessageValue
     {
+        private MessageProxyProto subClazzProxy;
 
-
-        public SubMessageValueDynamic(Descriptors.FieldDescriptor fieldDescriptor)
+        public SubMessageProto(Descriptors.FieldDescriptor fieldDescriptor, MessageProxy parentProxy)
         {
             super(fieldDescriptor);
+            subClazzProxy = (MessageProxyProto)parentProxy.findFieldProtoProxy(fieldDescriptor.getName());
+
         }
 
         @Override
         protected DynamicMessage buildDynamicMessage()
         {
-            return new DynamicMessageImpl(fieldDescriptor.getMessageType());
+            return new ProtoMessageImpl(subClazzProxy);
         }
 
         @Override
         protected void messageTypeCheck(Object item)
         {
-            if (!(item instanceof DynamicMessageImpl) && !(item instanceof com.google.protobuf.DynamicMessage))
+            if (!(item instanceof ProtoMessageImpl) && item.getClass() != subClazzProxy.getClazz())
             {
                 logger.error("Value type for key {} should be {} or {}, but we got {}",
                         fieldDescriptor.getName(),
-                        DynamicMessageImpl.class.getCanonicalName(),
-                        com.google.protobuf.DynamicMessage.class.getCanonicalName(),
+                        ProtoMessageImpl.class.getCanonicalName(),
+                        subClazzProxy.getClazz().getCanonicalName(),
                         item.getClass().getCanonicalName());
                 throw new IllegalArgumentException("Wrong value type for field " + fieldDescriptor.getName());
             }
         }
     }
-
-
 
 }

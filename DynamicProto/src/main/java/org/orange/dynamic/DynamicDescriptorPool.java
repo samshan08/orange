@@ -6,6 +6,11 @@ import com.google.protobuf.Descriptors;
 import lombok.AllArgsConstructor;
 import org.orange.dynamic.container.DynamicMessage;
 import org.orange.dynamic.container.impl.DynamicMessageImpl;
+import org.orange.dynamic.container.proxy.MessageProxy;
+import org.orange.dynamic.container.impl.ProtoMessageImpl;
+import org.orange.dynamic.container.proxy.MessageProxyDynamic;
+import org.orange.dynamic.container.proxy.MessageProxyProto;
+import org.springframework.util.ClassUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +32,11 @@ public class DynamicDescriptorPool {
     private Map<String, Descriptors.FileDescriptor> fileDescriptors = new ConcurrentHashMap<String, Descriptors.FileDescriptor>();
 
     private Map<String, Descriptors.MethodDescriptor> methodDescriptors = new ConcurrentHashMap<String, Descriptors.MethodDescriptor>();
+
+    private final Object lockToClazz = new Object();
+
+    private Map<Descriptors.Descriptor, MessageProxy> descToClazz = new ConcurrentHashMap<Descriptors.Descriptor, MessageProxy>();
+
 
     /**
      * 获取单例对象
@@ -72,7 +82,11 @@ public class DynamicDescriptorPool {
         }
         for (String fileFullName : setMethods.fileDescNames)
         {
-            fileDescriptors.remove(fileFullName);
+            Descriptors.FileDescriptor fileDescriptor = fileDescriptors.remove(fileFullName);
+            for (Descriptors.Descriptor messageType : fileDescriptor.getMessageTypes())
+            {
+                descToClazz.remove(messageType);
+            }
         }
         for (String methodFullName : setMethods.methodFullNames)
         {
@@ -134,21 +148,84 @@ public class DynamicDescriptorPool {
         {
             if (pkgName.equals(fileDescriptor.getPackage()))
             {
-                return fileDescriptor.findMessageTypeByName(messageTypeName);
+                Descriptors.Descriptor targetDescriptor= fileDescriptor.findMessageTypeByName(messageTypeName);
+                if (null != targetDescriptor)
+                {
+                    findProtoClazz(targetDescriptor);
+                }
+                return targetDescriptor;
             }
         }
         return null;
     }
 
+    public MessageProxy findProtoClazz(Descriptors.Descriptor descriptor)
+    {
+        if (descToClazz.containsKey(descriptor))
+        {
+            return descToClazz.get(descriptor);
+        }
+        synchronized (lockToClazz)
+        {
+            if (descToClazz.containsKey(descriptor))
+            {
+                return descToClazz.get(descriptor);
+            }
+            Descriptors.FileDescriptor fileDescriptor = descriptor.getFile();
+            String className = fileDescriptor.toProto().getOptions()
+                    .getJavaPackage()
+                    + "."
+                    + fileDescriptor.toProto().getOptions()
+                        .getJavaOuterClassname()
+                    + "$" + descriptor.getName();
+            Class<?> clazz;
+            try
+            {
+                clazz = ClassUtils.resolveClassName(className, Thread.currentThread().getContextClassLoader());
+            }
+            catch (IllegalArgumentException e)
+            {
+                //TODO: log
+                descToClazz.put(descriptor, new MessageProxyDynamic(descriptor));
+                return null;
+            }
+            MessageProxyProto messageClassCache = new MessageProxyProto(clazz, descriptor);
+            if (!messageClassCache.buildMethods())
+            {
+                descToClazz.put(descriptor, null);
+                return null;
+
+            }
+            descToClazz.put(descriptor, messageClassCache);
+            return messageClassCache;
+        }
+    }
+
     public DynamicMessage createDynamicMessageContainer(String typeFullName)
+    {
+        return createDynamicMessageContainer(typeFullName, false);
+    }
+
+    public DynamicMessage createDynamicMessageContainer(String typeFullName, boolean forceDynamic)
     {
         Descriptors.Descriptor descriptor = findTypeDescriptor(typeFullName);
         if (null == descriptor)
         {
             return null;
         }
+        if (forceDynamic)
+        {
+            return new DynamicMessageImpl(descriptor);
+        }
+        MessageProxy messageProxy = descToClazz.get(descriptor);
+        if (messageProxy instanceof MessageProxyProto)
+        {
+            //服务端与客户端内置，直接使用proto对象
+            return new ProtoMessageImpl(messageProxy);
+        }
         return new DynamicMessageImpl(descriptor);
     }
+
 
     public Descriptors.MethodDescriptor findMethodDescriptor(String methodFullName)
     {

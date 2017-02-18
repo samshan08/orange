@@ -1,7 +1,9 @@
 package org.orange.grpc.marshaller;
 
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.Message;
 import io.grpc.MethodDescriptor;
+import io.grpc.protobuf.lite.ProtoLiteUtils;
 import org.orange.dynamic.container.DynamicMessage;
 import org.orange.dynamic.container.impl.DynamicMessageImpl;
 
@@ -14,16 +16,16 @@ public class DynamicMessageMarshaller implements MethodDescriptor.Marshaller<Dyn
 {
     private final Descriptors.Descriptor descriptor;
 
-    private final ProtoMessageMarshaller protoMarshaller;
+    private final MethodDescriptor.Marshaller<Message> protoMarshaller;
 
     /**
      * Constructor
      * @param descriptor
      */
-    public DynamicMessageMarshaller(Descriptors.Descriptor descriptor)
+    public DynamicMessageMarshaller(Descriptors.Descriptor descriptor, Message defaultInstance)
     {
         this.descriptor = descriptor;
-        protoMarshaller = new ProtoMessageMarshaller(descriptor);
+        protoMarshaller = ProtoLiteUtils.marshaller(defaultInstance);
     }
 
     @Override
