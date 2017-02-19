@@ -22,6 +22,12 @@ public abstract class SubMessageValue
     public SubMessageValue(Descriptors.FieldDescriptor fieldDescriptor)
     {
         this.fieldDescriptor = fieldDescriptor;
+    }
+
+    /**
+     * call in the subclasses
+     */
+    protected void init() {
         if (!fieldDescriptor.isRepeated())
         {
             messageContainers = new ArrayList<DynamicMessage>(1);

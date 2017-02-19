@@ -80,7 +80,7 @@ public class ProtoMessageImpl extends AbstractDynamicMessage
         {
             super(fieldDescriptor);
             subClazzProxy = (MessageProxyProto)parentProxy.findFieldProtoProxy(fieldDescriptor.getName());
-
+            init();
         }
 
         @Override

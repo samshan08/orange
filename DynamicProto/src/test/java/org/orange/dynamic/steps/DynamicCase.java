@@ -2,6 +2,7 @@ package org.orange.dynamic.steps;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
 import cucumber.api.java.zh_cn.假如;
 import cucumber.api.java.zh_cn.当;
 import cucumber.api.java.zh_cn.那么;
@@ -90,7 +91,7 @@ public class DynamicCase
         MethodDescriptor<com.google.protobuf.DynamicMessage, com.google.protobuf.DynamicMessage> methodDesc =
                 MethodBuilder.buildProtoMessageMethod(DynamicDescriptorPool.generateFullName("dsf.vsc.pvr.api.pvrSerivce", "queryRecordPlans"));
         com.google.protobuf.DynamicMessage protoMsg = methodDesc.getResponseMarshaller().parse(new ByteArrayInputStream(typicalBytes));
-        DynamicMessage dynamicMessage = DynamicDescriptorPool.getInstance().createDynamicMessageContainer(typeName);
+        DynamicMessage dynamicMessage = DynamicDescriptorPool.getInstance().createDynamicMessageContainer(typeName, true);
         dynamicMessage.fromProtoMessage(protoMsg);
         ((DynamicMessage)((DynamicMessage)dynamicMessage.get("arg0")).get("result")).put("retMsg", "you are a good boy");
         dynamicStream.put(typeName, dynamicMessage.toProtoMessage().toByteArray());
@@ -113,6 +114,20 @@ public class DynamicCase
     public void unloadDescriptor(String descName) throws IOException, Descriptors.DescriptorValidationException {
         String path = "desc/" + descName;
         DynamicDescriptorPool.getInstance().unload(path);
+    }
+
+    @当("使用PB动态消息，反序列化PB对象(.+)，并修改值其中的值")
+    public void loadPBMessageToDynamic(String typeName) throws InvalidProtocolBufferException {
+        byte[] typicalBytes = typicalStream.get(typeName);
+        PvrSerivceProto.QueryRecordPlansResp.Builder builder = PvrSerivceProto.QueryRecordPlansResp.newBuilder();
+        builder.mergeFrom(typicalBytes);
+        PvrSerivceProto.QueryRecordPlansResp typicalMessage = builder.build();
+        DynamicMessage dynamicMessage = DynamicDescriptorPool.getInstance().createDynamicMessageContainer(typeName);
+        dynamicMessage.fromProtoMessage(typicalMessage);
+        ((DynamicMessage)((DynamicMessage)dynamicMessage.get("arg0")).get("result")).put("retMsg", "you are a good boy");
+        Message protoMessage = dynamicMessage.toProtoMessage();
+        dynamicStream.put(typeName, protoMessage.toByteArray());
+        Assert.assertEquals(typicalMessage.getParserForType(), protoMessage.getParserForType());
     }
 
 }

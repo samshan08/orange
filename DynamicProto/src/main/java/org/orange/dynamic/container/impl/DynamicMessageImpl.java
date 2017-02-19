@@ -75,6 +75,7 @@ public class DynamicMessageImpl extends AbstractDynamicMessage
         public SubMessageValueDynamic(Descriptors.FieldDescriptor fieldDescriptor)
         {
             super(fieldDescriptor);
+            init();
         }
 
         @Override
