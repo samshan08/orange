@@ -91,37 +91,6 @@ public abstract class AbstractDynamicMessage implements DynamicMessage
         throw new UnsupportedOperationException("DynamicMessage don't support entrySet");
     }
 
-    public DynamicMessage fill(final Object value)
-    {
-        if (null == value) {
-            return this;
-        }
-        if (value instanceof Map)
-        {
-            Map<?, ?> mapValue = (Map<?, ?>)value;
-            for (Map.Entry<?, ? > entry : mapValue.entrySet())
-            {
-                put(String.valueOf(entry.getKey()),entry.getValue());
-            }
-        }
-        else
-        {
-            ReflectionUtils.doWithFields(value.getClass(), new ReflectionUtils.FieldCallback() {
-                public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
-                    if (!field.isAccessible()) {
-                        ReflectionUtils.makeAccessible(field);
-                    }
-                    put(field.getName(), ReflectionUtils.getField(field, value));
-                }
-            }, new ReflectionUtils.FieldFilter() {
-                public boolean matches(Field field) {
-                    return !(Modifier.isStatic(field.getModifiers()) || Modifier.isTransient(field.getModifiers()));
-                }
-            });
-        }
-        return this;
-    }
-
     @Override
     public DynamicMessage fromProtoMessage(Message protoMessage)
     {

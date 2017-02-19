@@ -10,6 +10,8 @@ import org.orange.dynamic.container.proxy.MessageProxy;
 import org.orange.dynamic.container.impl.ProtoMessageImpl;
 import org.orange.dynamic.container.proxy.MessageProxyDynamic;
 import org.orange.dynamic.container.proxy.MessageProxyProto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 
 import java.io.IOException;
@@ -22,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by Sam on 2017/2/7.
  */
 public class DynamicDescriptorPool {
+
+    private final static Logger logger = LoggerFactory.getLogger(DynamicDescriptorPool.class);
 
     private static final DynamicDescriptorPool INSTANCE = new DynamicDescriptorPool();
 
@@ -135,7 +139,7 @@ public class DynamicDescriptorPool {
     {
         if (null  == typeFullName || !typeFullName.matches("[a-zA-Z0-9_\\.]*[a-zA-Z0-9_]"))
         {
-            throw new IllegalArgumentException(MessageFormat.format("The typeName for {} is invalid", typeFullName));
+            throw new IllegalArgumentException(MessageFormat.format("The typeName for {0} is invalid", typeFullName));
         }
         String pkgName = "";
         String messageTypeName = typeFullName;
@@ -185,16 +189,15 @@ public class DynamicDescriptorPool {
             }
             catch (IllegalArgumentException e)
             {
-                //TODO: log
-                descToClazz.put(descriptor, new MessageProxyDynamic(descriptor));
-                return null;
+                logger.debug("Class " + className + " not found in current classloader.");
+                MessageProxy proxy = new MessageProxyDynamic(descriptor);
+                descToClazz.put(descriptor, proxy);
+                return proxy;
             }
             MessageProxyProto messageClassCache = new MessageProxyProto(clazz, descriptor);
             if (!messageClassCache.buildMethods())
             {
-                descToClazz.put(descriptor, null);
-                return null;
-
+                throw new IllegalArgumentException("Wrong type for " + className + ", some methods missing.");
             }
             descToClazz.put(descriptor, messageClassCache);
             return messageClassCache;
