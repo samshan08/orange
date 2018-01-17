@@ -9,8 +9,7 @@ public interface Consts {
 
     int NUMBER_MAX_RED = 32;
 
-    int BALL_COUNT = NUMBER_MAX_BLUE + NUMBER_MAX_RED;
+    String TABLE_NAME = "BALL_RESULTS";
 
-    String ARG_RESULTS_NAME = "results-name";
 
 }

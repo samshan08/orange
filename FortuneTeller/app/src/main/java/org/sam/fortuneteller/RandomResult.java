@@ -1,6 +1,5 @@
 package org.sam.fortuneteller;
 
-import lombok.Getter;
 
 /**
  * Created by Sam on 2017/9/17.

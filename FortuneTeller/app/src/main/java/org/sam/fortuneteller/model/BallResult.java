@@ -1,7 +1,5 @@
 package org.sam.fortuneteller.model;
 
-import lombok.Data;
-
 /**
  * Created by Sam on 2017/12/2.
  */
@@ -46,5 +44,10 @@ public class BallResult {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return id;
     }
 }

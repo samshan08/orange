@@ -1,6 +1,6 @@
 package org.sam.fortuneteller.exception;
 
-import lombok.RequiredArgsConstructor;
+
 
 /**
  * Created by Sam on 2017/12/3.

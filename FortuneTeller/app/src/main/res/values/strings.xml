@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">FortuneTeller</string>
-    <string name="btn_start">New</string>
-    <string name="btn_load">Load</string>
+    <string name="btn_cont">Continue</string>
+    <string name="btn_start">Start</string>
     <string name="btn_exit">Exit</string>
     <string name="dlg_input">Please input</string>
     <string name="btn_ok">OK</string>
