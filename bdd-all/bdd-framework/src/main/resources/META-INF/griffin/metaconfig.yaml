@@ -1,0 +1,14 @@
+- main: com.huawei.ccc.AbcTest
+  server:
+    - configPath: /META-INF
+      springConfigPath:
+        - aaaa
+        - adfdf
+  client:
+    - configPath: /META-INF/sd
+      springConfigPath:
+        - sdd
+        - sdd
+      serviceToWait:
+        - afff
+        - bcccc
