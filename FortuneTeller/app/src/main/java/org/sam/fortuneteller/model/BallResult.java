@@ -20,6 +20,7 @@ public class BallResult {
         this.number = number;
         this.parent = parent;
         id = color.name() + "-" + number;
+        content = "";
     }
 
     public BallColor getColor() {

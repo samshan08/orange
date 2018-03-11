@@ -22,7 +22,7 @@
             android:layout_marginRight="85dp"
             android:layout_marginTop="220dp"
             android:text="@string/btn_cont"
-            android:onClick="newFortuneActivity"
+            android:onClick="continueFortuneActivity"
     />
 
     <Button android:id="@+id/start"
@@ -37,7 +37,7 @@
             android:layout_alignTop="@id/cont"
             android:layout_marginTop="70dp"
             android:text="@string/btn_start"
-            android:onClick="newFortuneActivity"
+            android:onClick="onCreateFortune"
     />
 
 

@@ -1,31 +1,42 @@
 package org.sam.fortuneteller.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by Sam on 2017/12/2.
  */
 public class Results {
 
+    private String createDate;
+
     private String name;
 
     private final List<BallResult> balls;
 
-    private String savedPath;
+    private final Map<String, BallResult> ballMaps;
 
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
     public Results()
     {
+        createDate = sdf.format(new Date());
         balls = new ArrayList<>();
+        ballMaps = new HashMap<>();
+        BallResult ballResult;
         for (int i = 0; i < Consts.NUMBER_MAX_RED; ++i)
         {
-            balls.add(new BallResult(BallColor.RED, i + 1, this));
+            ballResult = new BallResult(BallColor.RED, i + 1, this);
+            balls.add(ballResult);
+            ballMaps.put(ballResult.getId(), ballResult);
         }
         for (int i = 0; i < Consts.NUMBER_MAX_BLUE; ++i)
         {
-            balls.add(new BallResult(BallColor.BLUE, i + 1, this));
+            ballResult = new BallResult(BallColor.BLUE, i + 1, this);
+            balls.add(ballResult);
+            ballMaps.put(ballResult.getId(), ballResult);
         }
+
     }
 
     public int size()
@@ -51,11 +62,15 @@ public class Results {
         return balls;
     }
 
-    public String getSavedPath() {
-        return savedPath;
+    public BallResult getBallById(String ballId) {
+        return ballMaps.get(ballId);
     }
 
-    public void setSavedPath(String savedPath) {
-        this.savedPath = savedPath;
+    public String getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(String createDate) {
+        this.createDate = createDate;
     }
 }

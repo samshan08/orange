@@ -7,19 +7,16 @@ import org.sam.fortuneteller.R;
 import org.sam.fortuneteller.model.BallResult;
 
 /**
+ * 查看占卜结果
  * Created by Sam on 2017/12/2.
  */
-public class ResultsDetailActivity extends AppCompatActivity implements BallResultClickListener{
+public class ResultsDetailActivity extends AppCompatActivity{
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_show_list);
+        setContentView(R.layout.activity_result_detail);
     }
 
-    @Override
-    public void itemClick(BallResult ballResult) {
-
-    }
 }
