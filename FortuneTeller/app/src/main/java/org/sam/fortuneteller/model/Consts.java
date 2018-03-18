@@ -23,6 +23,4 @@ public interface Consts {
 
     String KEY_RESULT_ITEM_KEY = "result_item-key";
 
-    String KEY_RESULT_ITEM_CONTENT = "result_item-content-key";
-
 }

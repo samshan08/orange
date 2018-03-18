@@ -26,13 +26,13 @@ public class Results {
         BallResult ballResult;
         for (int i = 0; i < Consts.NUMBER_MAX_RED; ++i)
         {
-            ballResult = new BallResult(BallColor.RED, i + 1, this);
+            ballResult = new BallResult(createDate, BallColor.RED, i + 1);
             balls.add(ballResult);
             ballMaps.put(ballResult.getId(), ballResult);
         }
         for (int i = 0; i < Consts.NUMBER_MAX_BLUE; ++i)
         {
-            ballResult = new BallResult(BallColor.BLUE, i + 1, this);
+            ballResult = new BallResult(createDate, BallColor.BLUE, i + 1);
             balls.add(ballResult);
             ballMaps.put(ballResult.getId(), ballResult);
         }

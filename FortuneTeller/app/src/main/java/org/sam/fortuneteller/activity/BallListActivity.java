@@ -15,6 +15,7 @@ import org.sam.fortuneteller.model.Results;
 
 /**
  * 进入启动占卜页面
+ * @author SAM
  */
 public class BallListActivity extends ListActivity {
 
@@ -23,7 +24,7 @@ public class BallListActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ball_list);
 
-        String resultsKey = (String) getIntent().getExtras().get(Consts.KEY_RESULTS_KEY);
+        String resultsKey = getIntent().getExtras().getString(Consts.KEY_RESULTS_KEY);
         BallResultsDataHelper ballResultsDataHelper = new BallResultsDataHelper(getApplicationContext());
         Results results = ballResultsDataHelper.loadBallResults(resultsKey);
 
@@ -39,9 +40,7 @@ public class BallListActivity extends ListActivity {
     protected void onListItemClick(ListView listView, View v, int position, long id) {
         Intent intent = new Intent(this, ResultsDetailActivity.class);
         BallResult selectedItem = (BallResult) listView.getSelectedItem();
-        intent.putExtra(Consts.KEY_RESULTS_KEY, selectedItem.getParent().getCreateDate());
-        intent.putExtra(Consts.KEY_RESULT_ITEM_KEY, selectedItem.getId());
-        intent.putExtra(Consts.KEY_RESULT_ITEM_CONTENT, selectedItem.getContent());
+        intent.putExtra(Consts.KEY_RESULT_ITEM_KEY, selectedItem);
         startActivity(intent);
     }
 }
