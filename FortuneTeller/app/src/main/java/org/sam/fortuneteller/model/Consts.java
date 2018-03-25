@@ -11,6 +11,8 @@ public interface Consts {
 
     String TBL_RESULTS = "BALL_RESULTS";
 
+    String COL_ID = "ID";
+
     String COL_CREATE_DATE = "CREATE_DATE";
 
     String COL_NAME = "NAME";

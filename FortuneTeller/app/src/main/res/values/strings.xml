@@ -1,10 +1,10 @@
 <resources>
     <string name="app_name">FortuneTeller</string>
-    <string name="btn_cont">Continue</string>
-    <string name="btn_start">Start</string>
-    <string name="btn_exit">Exit</string>
+    <string name="btn_cont">继续</string>
+    <string name="btn_start">开始</string>
+    <string name="btn_exit">推出</string>
     <string name="dlg_input">Please input</string>
-    <string name="btn_ok">OK</string>
-    <string name="btn_cancel">Cancel</string>
+    <string name="btn_ok">确定</string>
+    <string name="btn_cancel">取消</string>
     <string name="btn_yaoGua">摇卦</string>
 </resources>

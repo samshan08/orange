@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:gravity="center" android:layout_gravity="center" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="100.0dip">
+        <ImageView android:id="@+id/imageView1" android:layout_width="78.0dip" android:layout_height="78.0dip" android:src="@raw/z1" />
+        <ImageView android:id="@+id/imageView2" android:layout_width="78.0dip" android:layout_height="78.0dip" android:src="@raw/z0" />
+        <ImageView android:id="@+id/imageView3" android:layout_width="78.0dip" android:layout_height="78.0dip" android:src="@raw/z1" />
+    </LinearLayout>
+    <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <RelativeLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <Button android:id="@+id/btyao" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="第一次" android:layout_centerInParent="true" />
+        </RelativeLayout>
+    </LinearLayout>
+    <LinearLayout android:layout_gravity="center" android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <TextView android:textSize="15.0sp" android:id="@+id/yaotext2" android:paddingLeft="10.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="提示：" />
+        <TextView android:textSize="15.0sp" android:id="@+id/yaotext3" android:paddingLeft="10.0dip" android:paddingBottom="5.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="　　　按住摇卦次数键，自动连续摇卦；" />
+        <TextView android:textSize="15.0sp" android:id="@+id/yaotext4" android:paddingLeft="10.0dip" android:paddingBottom="5.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="　　　放开摇卦次数键，完成一次摇卦。" />
+    </LinearLayout>
+</LinearLayout>

@@ -46,7 +46,16 @@ public class BallResultsDataHelper extends SQLiteOpenHelper {
 
     }
 
-    public void insertBallResults(Results results) {
+    public Results checkAndInsertResult (Results results) {
+        String createDate = results.getCreateDate();
+        Results existResult = loadBallResults(createDate);
+        if  (null != existResult) {
+            return existResult;
+        }
+        return insertBallResults(results);
+    }
+
+    private Results insertBallResults(Results results) {
         SQLiteDatabase db = getWritableDatabase();
         for (BallResult ballResult : results.getBalls()) {
             ContentValues contentValues = new ContentValues();
@@ -56,6 +65,7 @@ public class BallResultsDataHelper extends SQLiteOpenHelper {
             contentValues.put(Consts.COL_CONTENT, ballResult.getContent());
             db.insert(Consts.TBL_RESULTS, null, contentValues);
         }
+        return results;
     }
 
     public Results loadBallResults(String key) {

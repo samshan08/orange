@@ -21,6 +21,7 @@ public class Results {
     public Results()
     {
         createDate = sdf.format(new Date());
+        name = "Record-" + createDate;
         balls = new ArrayList<>();
         ballMaps = new HashMap<>();
         BallResult ballResult;

@@ -23,8 +23,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCreateFortune(View view) {
         //create the data record
         BallResultsDataHelper dataHelper = new BallResultsDataHelper(view.getContext());
-        Results results = new Results();
-        dataHelper.insertBallResults(results);
+        Results results = dataHelper.checkAndInsertResult(new Results());
         Intent intent = new Intent(this, BallListActivity.class);
         intent.putExtra(Consts.KEY_RESULTS_KEY, results.getCreateDate());
         startActivity(intent);
