@@ -10,8 +10,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import org.sam.fortuneteller.R;
+import org.sam.fortuneteller.adapter.TellingFortuneListener;
 import org.sam.fortuneteller.model.BallResult;
 import org.sam.fortuneteller.model.Consts;
+
+import java.util.concurrent.*;
 
 /**
  * 查看占卜结果
@@ -20,6 +23,34 @@ import org.sam.fortuneteller.model.Consts;
 public class ResultsDetailActivity extends AppCompatActivity{
 
     private BallResult ballResult;
+
+    private ScheduledExecutorService services;
+
+    private TellingFortuneListener tellingFortuneListener = null;
+
+    private ScheduledFuture<?> scheduledFuture = null;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        services = new ScheduledThreadPoolExecutor(1);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        cancelFuture();
+        services.shutdownNow();
+        services = null;
+    }
+
+    private void cancelFuture() {
+        if (null != scheduledFuture) {
+            scheduledFuture.cancel(true);
+            scheduledFuture = null;
+        }
+        tellingFortuneListener = null;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,23 +68,38 @@ public class ResultsDetailActivity extends AppCompatActivity{
         });
     }
 
+    private void scheduleTask() {
+        if (null != scheduledFuture) {
+            scheduledFuture.cancel(true);
+        }
+        scheduledFuture = services.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                tellingFortuneListener.doRandom();
+            }
+        }, 1000, 10, TimeUnit.MILLISECONDS);
+    }
+
     private void doTellFortune(View view) {
         View localView = LayoutInflater.from(this).inflate(R.layout.yaogua, null);
+        tellingFortuneListener = new TellingFortuneListener(localView);
+        localView.findViewById(R.id.btyao).setOnTouchListener(tellingFortuneListener);
+        scheduleTask();
         new AlertDialog.Builder(this).
                 setTitle(R.string.btn_yaoGua).setCancelable(false).setView(localView)
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         confirmFortuneResult(dialog, which);
                     }
                 })
-                .setNeutralButton("重新摇卦", new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.btn_reYaoGua, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         reloadFortuneResult(dialog, which);
                     }
                 })
-                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         cancelFortuneResult(dialog, which);
@@ -70,6 +116,6 @@ public class ResultsDetailActivity extends AppCompatActivity{
     }
 
     private void cancelFortuneResult(DialogInterface dialog, int which) {
-        //TODO
+        cancelFuture();
     }
 }
