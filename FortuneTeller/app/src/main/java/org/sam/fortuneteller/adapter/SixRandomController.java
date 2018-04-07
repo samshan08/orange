@@ -19,7 +19,7 @@ public class SixRandomController {
 
     private Random coinRd = new SecureRandom();
 
-    private AtomicInteger round = new AtomicInteger(0);
+    private int[] lastRandomResult = null;
 
     public SixRandomController() {
         roundToResult.put("阳阳阳", "老阳Ｏ");
@@ -38,24 +38,21 @@ public class SixRandomController {
         intToResourceId.put(1, R.raw.z1);
     }
 
-    public void reset() {
-        round.set(0);
+    public synchronized int[] getLastRandomResult() {
+        return lastRandomResult;
     }
 
     public int[] randomNow() {
-        int a = round.incrementAndGet();
-        System.out.println("do random now " + a);
         int[] coinRds = new int[3];
         for (int i = 0; i < coinRds.length; ++i)
         {
             coinRds[i] = coinRd.nextInt(2);
         }
+        synchronized (this) {
+            lastRandomResult = coinRds;
+        }
         System.out.println("results are " + Arrays.toString(coinRds));
         return coinRds;
-    }
-
-    public int getRound() {
-        return round.get();
     }
 
     public String toRoundResult(int[] coinRds) {
@@ -67,8 +64,8 @@ public class SixRandomController {
         return builder.toString();
     }
 
-    public String toActualResult(String round) {
-        return roundToResult.get(round);
+    public String toActualResult(int[] coinRds) {
+        return roundToResult.get(toRoundResult(coinRds));
     }
 
     public int[] toResourceIds(int[] coinRds) {

@@ -25,4 +25,7 @@ public interface Consts {
 
     String KEY_RESULT_ITEM_KEY = "result_item-key";
 
+    int MAX_FORTUNE_ROUND = 6;
+
+    String TOKEN_SEP = "      ";
 }
