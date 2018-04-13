@@ -159,6 +159,23 @@ public class FortuneParser {
         }
     }
 
+    public static String getJoinPart(int arrayIndex, int strIndex) {
+        return FortuneContent.FORTUNE_PARTS[arrayIndex].substring(strIndex - 1, strIndex);
+    }
+
+
+    public static String[] getSecondFortunePart(int first, int second) {
+        String[] arrayOfString2 = new String[7];
+        arrayOfString2[0] = "";
+        arrayOfString2[6] = getJoinPart(first, 6);
+        arrayOfString2[5] = getJoinPart(first, 5);
+        arrayOfString2[4] = getJoinPart(first, 4);
+        arrayOfString2[3] = getJoinPart(second, 3);
+        arrayOfString2[2] = getJoinPart(second, 2);
+        arrayOfString2[1] = getJoinPart(second, 1);
+        return arrayOfString2;
+    }
+
     public static String[] getSixGod(String dayTop) {
         String[] arrayOfString4 = new String[7];
         arrayOfString4[0] = "";
@@ -216,11 +233,7 @@ public class FortuneParser {
             arrayOfString4[5] = "蛇";
             arrayOfString4[6] = "虎";
         }
-        String[] actual = new String[6];
-        for (int i = 6; i > 0; --i) {
-            actual[6 - i] = arrayOfString4[i];
-        }
-        return actual;
+        return arrayOfString4;
     }
 
     public static void main(String[] args) {
