@@ -51,7 +51,6 @@ public class SixRandomController {
         synchronized (this) {
             lastRandomResult = coinRds;
         }
-        System.out.println("results are " + Arrays.toString(coinRds));
         return coinRds;
     }
 

@@ -27,5 +27,4 @@ public interface Consts {
 
     int MAX_FORTUNE_ROUND = 6;
 
-    String TOKEN_SEP = "      ";
 }

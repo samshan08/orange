@@ -1,31 +1,24 @@
 package org.sam.fortuneteller.activity;
 
 import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import org.sam.fortuneteller.R;
+import org.sam.fortuneteller.adapter.CalFortuneHandler;
 import org.sam.fortuneteller.adapter.TellingFortuneListener;
-import org.sam.fortuneteller.data.CalendarParser;
-import org.sam.fortuneteller.data.FortuneContent;
-import org.sam.fortuneteller.data.FortuneParser;
 import org.sam.fortuneteller.model.BallResult;
 import org.sam.fortuneteller.model.Consts;
 
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.Random;
-import java.util.TimeZone;
 import java.util.concurrent.*;
-
-import static org.sam.fortuneteller.model.Consts.TOKEN_SEP;
 
 /**
  * 查看占卜结果
@@ -43,80 +36,12 @@ public class ResultsDetailActivity extends AppCompatActivity{
 
     private Handler calFortuneHandler;
 
-    private Random random = new Random();
-
     @Override
     protected void onStart() {
         super.onStart();
         services = new ScheduledThreadPoolExecutor(1);
-        calFortuneHandler = new Handler() {
-
-            private CalendarParser parser = new CalendarParser();
-
-            @Override
-            public void handleMessage(Message msg) {
-                int what = msg.what;
-                Calendar current = Calendar.getInstance(TimeZone.getTimeZone("GMT+08:00"));
-                int year = current.get(Calendar.YEAR);
-                int month = current.get(Calendar.MONTH) + 1;
-                int day = current.get(Calendar.DAY_OF_MONTH);
-                int hour = current.get(Calendar.HOUR_OF_DAY);
-                int minute = current.get(Calendar.MINUTE);
-                CalendarParser.Coin yearCoin = CalendarParser.transformYearToCoin(year);
-                String neighboringYear = parser.getNeighborDownPresent(yearCoin.getDown());
-                CalendarParser.Coin monthCoin = parser.transformMonthToCoin(year, month, day);
-                CalendarParser.Coin dayCoin = parser.transformDayToCoin(year, month, day);
-                CalendarParser.Coin hourCoin = parser.transformHourToCoin(hour);
-                String timeText = String.format(FortuneContent.TIME_TEXT, year, month, day, hour, minute);
-                String yearPresent = CalendarParser.coinToPresent(yearCoin);
-                String monthPresent = CalendarParser.coinToPresent(monthCoin);
-                String dayPresent = CalendarParser.coinToPresent(dayCoin);
-                String hourPresent = CalendarParser.coinToPresent(hourCoin);
-                String nongliText = String.format(Locale.CHINA, FortuneContent.NONG_TIME_TEXT,
-                        yearPresent,
-                        monthPresent,
-                        dayPresent,
-                        neighboringYear,
-                        hourPresent,
-                        what);
-
-                String codeStr = String.valueOf(what);
-                String firstToken = FortuneParser.parsePreValue(codeStr.substring(0, 2));
-                String secondToken = null;
-                switch (codeStr.length()) {
-                    case 2:{
-                        break;
-                    }
-                    case 3: {
-                        StringBuilder builder = new StringBuilder();
-                        builder.append(Integer.parseInt(codeStr.substring(2)));
-                        builder.append(random.nextInt(8) + 1);
-                        int secondTokenCode = Integer.parseInt(builder.toString());
-                        secondToken = FortuneParser.parsePreValue(String.valueOf(secondTokenCode));
-                        break;
-                    }
-                    default: {
-                        int firstIndex = random.nextInt(codeStr.length() - 2) + 2;
-                        int secondIndex = random.nextInt(codeStr.length() - 2) + 2;
-                        int firstTokenIndex = Integer.parseInt(codeStr.substring(firstIndex, firstIndex + 1));
-                        int secondITokenIndex = Integer.parseInt(codeStr.substring(secondIndex, secondIndex + 1));
-                        StringBuilder builder = new StringBuilder();
-                        builder.append(firstTokenIndex);
-                        builder.append(secondITokenIndex);
-                        int secondTokenCode = Integer.parseInt(builder.toString());
-                        secondToken = FortuneParser.parsePreValue(String.valueOf(secondTokenCode));
-                        break;
-                    }
-                }
-                StringBuilder tokenText = new StringBuilder(TOKEN_SEP + firstToken + TOKEN_SEP);
-                if (null != secondToken) {
-                    tokenText.append(secondToken).append(TOKEN_SEP);
-                }
-                tokenText.append("六神");
-                TextView tellFortuneText = (TextView) findViewById(R.id.tellContent);
-                tellFortuneText.setText(timeText + "\r\n" + nongliText + "\r\n" + tokenText);
-            }
-        };
+        calFortuneHandler = new CalFortuneHandler(
+                (TextView) findViewById(R.id.tellContent));
     }
 
     @Override
@@ -140,7 +65,10 @@ public class ResultsDetailActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ball_detail);
         ballResult = getIntent().getParcelableExtra(Consts.KEY_RESULT_ITEM_KEY);
-        TextView textView = (TextView) findViewById(R.id.tellContent);
+        EditText textView = (EditText) findViewById(R.id.tellContent);
+        Typeface fontFace = Typeface.createFromAsset(getAssets(), "fonts/simsun.ttf");
+        textView.setTypeface(fontFace);
+        textView.setTextSize(15);
         textView.setText(ballResult.getContent());
         Button btnTell = (Button) findViewById(R.id.btn_tell);
         btnTell.setOnClickListener(new View.OnClickListener() {

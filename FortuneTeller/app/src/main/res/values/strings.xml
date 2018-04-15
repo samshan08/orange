@@ -7,6 +7,8 @@
     <string name="btn_ok">确定</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_yaoGua">摇卦</string>
+    <string name="btn_save">保存</string>
+    <string name="btn_copy">复制</string>
     <string name="btn_reYaoGua">重新摇卦</string>
     <string name="txtDlgResult">初爻：0      二爻：1;三爻：2      四爻：3;五爻：4      六爻：5</string>
 </resources>

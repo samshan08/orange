@@ -14,4 +14,13 @@ public interface FortuneContent {
     String[] DOWN = { "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥" };
 
     String[] FORTUNE_PARTS = { "", "子寅辰午申戌", "巳卯丑亥酉未", "卯丑亥酉未巳", "子寅辰午申戌", "丑亥酉未巳卯", "寅辰午申戌子", "辰午申戌子寅", "未巳卯丑亥酉" };
+
+    String SYM_CIRCLE = "○";
+    String SYM_CROSS = "×";
+    String SYM_SLASH = "、";
+    String SYM_DOT = "..";
+
+    String TITLE_CHANGE = "世";
+
+    String REPLACE_HOLDER = " ";
 }
