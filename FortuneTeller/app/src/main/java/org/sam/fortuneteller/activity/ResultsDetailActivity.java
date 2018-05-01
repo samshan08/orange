@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import org.sam.fortuneteller.R;
 import org.sam.fortuneteller.adapter.CalFortuneHandler;
 import org.sam.fortuneteller.adapter.TellingFortuneListener;
+import org.sam.fortuneteller.data.BallResultsDataHelper;
 import org.sam.fortuneteller.model.BallResult;
 import org.sam.fortuneteller.model.Consts;
 
@@ -36,12 +38,15 @@ public class ResultsDetailActivity extends AppCompatActivity{
 
     private Handler calFortuneHandler;
 
+    private BallResultsDataHelper dataHelper;
+
     @Override
     protected void onStart() {
         super.onStart();
         services = new ScheduledThreadPoolExecutor(1);
-        calFortuneHandler = new CalFortuneHandler(
+        calFortuneHandler = new CalFortuneHandler(ballResult,
                 (TextView) findViewById(R.id.tellContent));
+        dataHelper = new BallResultsDataHelper(getApplicationContext());
     }
 
     @Override
@@ -65,7 +70,7 @@ public class ResultsDetailActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ball_detail);
         ballResult = getIntent().getParcelableExtra(Consts.KEY_RESULT_ITEM_KEY);
-        EditText textView = (EditText) findViewById(R.id.tellContent);
+        final EditText textView = (EditText) findViewById(R.id.tellContent);
         Typeface fontFace = Typeface.createFromAsset(getAssets(), "fonts/simsun.ttf");
         textView.setTypeface(fontFace);
         textView.setTextSize(15);
@@ -75,6 +80,28 @@ public class ResultsDetailActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 doTellFortune(v);
+            }
+        });
+        Button btnSave = (Button) findViewById(R.id.btn_save);
+        btnSave.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                String text = textView.getText().toString();
+                ballResult.setContent(text);
+                int updateResult = dataHelper.updateBallResult(ballResult);
+                final AlertDialog alert = new AlertDialog.Builder(ResultsDetailActivity.this)
+                        .create();
+                alert.setTitle("提示:");
+                alert.setMessage(updateResult > 0 ? "保存成功" : "保存失败");
+                alert.show();
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        alert.dismiss();
+                    }
+                }, 2000);
             }
         });
     }

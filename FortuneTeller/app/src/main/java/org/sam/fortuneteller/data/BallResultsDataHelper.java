@@ -9,6 +9,8 @@ import org.sam.fortuneteller.model.BallResult;
 import org.sam.fortuneteller.model.Consts;
 import org.sam.fortuneteller.model.Results;
 
+import static org.sam.fortuneteller.model.Consts.COL_ID;
+
 /**
  * Created by SAM on 2018/1/16.
  */
@@ -35,7 +37,8 @@ public class BallResultsDataHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + Consts.TBL_RESULTS + " ("
-                + Consts.COL_CREATE_DATE + " TEXT PRIMARY KEY, "
+                + COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + Consts.COL_CREATE_DATE + " TEXT, "
                 + Consts.COL_NAME + " TEXT, "
                 + Consts.COL_BALL_ID + " TEXT, "
                 + Consts.COL_CONTENT + " TEXT);");
@@ -43,7 +46,7 @@ public class BallResultsDataHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        System.out.println("new is " + newVersion + ", old is " + oldVersion);
     }
 
     public Results checkAndInsertResult (Results results) {
@@ -68,23 +71,34 @@ public class BallResultsDataHelper extends SQLiteOpenHelper {
         return results;
     }
 
+    public int updateBallResult(BallResult ballResult) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Consts.COL_CONTENT, ballResult.getContent());
+        return db.update(Consts.TBL_RESULTS, values,
+                Consts.COL_CREATE_DATE + "= ? and " + Consts.COL_BALL_ID + "= ?",
+                new String[]{ballResult.getCreateDate(), ballResult.getId()});
+    }
+
     public Results loadBallResults(String key) {
         SQLiteDatabase readableDatabase = getReadableDatabase();
         Cursor cursor = readableDatabase.query(Consts.TBL_RESULTS,
-                new String[]{Consts.COL_CREATE_DATE, Consts.COL_NAME, Consts.COL_BALL_ID, Consts.COL_CONTENT},
+                new String[]{Consts.COL_ID, Consts.COL_CREATE_DATE, Consts.COL_NAME, Consts.COL_BALL_ID, Consts.COL_CONTENT},
                 Consts.COL_CREATE_DATE + " = ?",
                 new String[]{key}, null, null, null);
-        Results results = new Results();
         if (!cursor.moveToFirst()) {
-            return results;
+            return null;
         }
+        Results results = new Results();
         results.setCreateDate(getColText(cursor, Consts.COL_CREATE_DATE));
         results.setName(getColText(cursor, Consts.COL_NAME));
         do {
+            int colId = getColInteger(cursor, Consts.COL_ID);
             String ballId = getColText(cursor, Consts.COL_BALL_ID);
             String content = getColText(cursor, Consts.COL_CONTENT);
             BallResult ballById = results.getBallById(ballId);
             if (null != ballById) {
+                ballById.setColId(colId);
                 ballById.setContent(content);
             }
         } while (cursor.moveToNext());
@@ -93,6 +107,10 @@ public class BallResultsDataHelper extends SQLiteOpenHelper {
 
     private String getColText(Cursor cursor, String colName) {
         return  cursor.getString(cursor.getColumnIndex(colName));
+    }
+
+    private int getColInteger(Cursor cursor, String colName) {
+        return  cursor.getInt(cursor.getColumnIndex(colName));
     }
 
 }

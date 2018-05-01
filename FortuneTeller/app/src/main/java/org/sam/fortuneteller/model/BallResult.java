@@ -16,6 +16,8 @@ public class BallResult implements Parcelable {
 
     private final String createDate;
 
+    private int colId;
+
     private final String id;
 
     private String content;
@@ -84,6 +86,14 @@ public class BallResult implements Parcelable {
         dest.writeString(color.name());
         dest.writeInt(number);
         dest.writeString(content);
+    }
+
+    public int getColId() {
+        return colId;
+    }
+
+    public void setColId(int colId) {
+        this.colId = colId;
     }
 
     public String getCreateDate() {

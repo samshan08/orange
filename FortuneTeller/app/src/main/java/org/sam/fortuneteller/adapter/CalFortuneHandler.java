@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.TextView;
 import org.sam.fortuneteller.data.*;
+import org.sam.fortuneteller.model.BallResult;
 
 import java.util.Calendar;
 import java.util.Locale;
@@ -18,8 +19,14 @@ public class CalFortuneHandler extends Handler {
 
     private CalendarParser parser = new CalendarParser();
 
-    public CalFortuneHandler(TextView tellFortuneText) {
+    private final BallResult ballResult;
+
+    private BallResultsDataHelper dataHelper;
+
+    public CalFortuneHandler(BallResult ballResult, TextView tellFortuneText) {
         this.tellFortuneText = tellFortuneText;
+        this.ballResult = ballResult;
+        dataHelper = new BallResultsDataHelper(tellFortuneText.getContext());
     }
 
     @Override
@@ -127,6 +134,8 @@ public class CalFortuneHandler extends Handler {
             builder.append("\r\n");
         }
         builder.append("分析：\n");
-        tellFortuneText.setText(builder.toString());
+        ballResult.setContent(builder.toString());
+        dataHelper.updateBallResult(ballResult);
+        tellFortuneText.setText(ballResult.getContent());
     }
 }
