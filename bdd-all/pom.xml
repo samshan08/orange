@@ -14,7 +14,7 @@
 
     <properties>
         <junit.version>4.12</junit.version>
-        <snakeyaml.version>1.19</snakeyaml.version>
+        <snakeyaml.version>1.26</snakeyaml.version>
         <lombok.version>1.16.20</lombok.version>
         <spring.framework.version>4.3.13</spring.framework.version>
     </properties>
